@@ -39,7 +39,7 @@ export default function Canvas() {
             width: 100,
             height: 20
         },
-        {
+        {  
             quantity: 1000,
             color: "rgba(255, 105, 105)",
             width: 20,
