@@ -2,16 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 
 //CANVAS SKETCH FUNKCE
 const random = require ('canvas-sketch-util/random');
-//const math = require('canvas-sketch-util/math');
 
-export default function Canvas() {
+export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
 
-    // REFS
-    const canvasRef = useRef(null);    
+    // REFS 
     const angle = useRef(0);
 
     // STATES
-    const [canvasSize, setCanvasSize] = useState(0);
     const [animateHandler, setAnimateHandler] = useState(true);
     const [drawHandler, setDrawHandler] = useState(false);
     const [presset, setPresset] = useState("normal");
@@ -23,8 +20,9 @@ export default function Canvas() {
     const patternIputs = [
         {  
             quantity: 2500,
-            color: "white",
-            width: 80,
+            color: "rgba( 225, 50, 40)",
+            //color: "black",
+            width: 180,
             height: 15
         }, 
 
@@ -60,8 +58,11 @@ export default function Canvas() {
         return thisRandoms;
     }
 
+
+
     //ANIMATION IS RUNING HERE
     useEffect(() => {
+
         // canvas def
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
@@ -84,6 +85,7 @@ export default function Canvas() {
                 timerHolder = null;
             }
 
+
             function drawing() {
                 // DRAWING FUNCTION
                 if(drawHandler === true) {
@@ -93,15 +95,12 @@ export default function Canvas() {
                 }
                 
                 // UPDATING ANGLE
-                //angle.current += toRads(0.0001);
-                angle.current += 0.00000005;
+                angle.current += 0.00000002;
                 const loopMotion = angle.current
                 const quant = patternIputs.length;
-                
 
 
-
-
+                // FRONTSIDE ELEMENTS
                 randomRectValues.forEach((i, index) => {                           
                     let shift;
                     i.forEach((e, indexx) => {                
@@ -123,9 +122,10 @@ export default function Canvas() {
                             
                         let color;
                         if(prevShift > shift) {
-                            color = e.color                            
+
+                            color = "transparent"                    
                         } else{
-                            color = "transparent"
+                            color = e.color        
                         }
                     
                         drawRect(
@@ -144,26 +144,19 @@ export default function Canvas() {
                 })
             
             
-            
-                randomRectValues.forEach((i, index) => {                           
-                    i.forEach((e, indexx) => {                                                            
-                        drawInside(
-                            context, 
-                            e.x,    // X
-                            0,   // Y
-                            e.width,    // WIDTH
-                            e.height,   // HEIGHT
-                            //angle.current,  // ANGLE
-                            0.8,
-                            "rgba(235, 160, 60)",
-                            e.opacity,
-                            height
-                        )
-                    });                   
-                })            
-            
-            
-                        
+                // TEXT
+                context.save();
+                context.translate(width / 9, height / 2);
+                context.beginPath();
+                context.fillStyle = "orange";
+                context.font = width / 6 + "px arial";
+                context.fillText("Hello world", 0, 0);
+                context.fill();
+                context.closePath();
+                context.restore();
+                
+                   
+                // BACKSIDE ELEMENTS
                 randomRectValues.forEach((i, index) => {                           
                     let shift;
                     i.forEach((e, indexx) => {                        
@@ -185,9 +178,10 @@ export default function Canvas() {
                                                     
                         let color;
                         if(prevShift > shift) {
-                            color = "transparent"                           
-                        } else{
                             color = e.color
+                        } else{
+
+                            color = "transparent"     
                         }
                     
                         drawRect(
@@ -203,16 +197,14 @@ export default function Canvas() {
                             e.opacity
                         );
                     });                   
-                })
-            
-            
-                        
+                })                                   
             }
             drawing()
         };
         render();
 
-        //animation cancel
+
+        //animation cancel when re-render component
         return () => cancelAnimationFrame(timerHolder);
     });
 
@@ -223,7 +215,6 @@ export default function Canvas() {
         angle.current = 0;
         // eslint-disable-next-line
     }, [reset])
-
 
 
     //RESIZE FUNCTION
@@ -279,33 +270,6 @@ export default function Canvas() {
 
     }
 
-    function drawInside(context, x, y, w, h, angle, color, opacity, height) {
-        const rx = Math.cos(angle) * w;
-        const ry = Math.sin(angle) * w;
-
-        context.save();
-        context.translate(x, height / 2);
-
-        context.strokeStyle = "black";
-        context.fillStyle = color;
-        context.lineWidth = 3;
-
-        //context.translate(rx * -0.5, (ry + h) * -0.5);
-        context.beginPath();
-        context.moveTo(0, 0);
-        context.lineTo(rx, ry);
-        context.lineTo(rx, ry + 20);
-        context.lineTo(0, 20);
-
-        context.closePath();
-        context.globalAlpha = opacity;
-
-        context.fill();
-        //context.stroke();
-        context.restore();
-    }
-
-
 
     return (
         <div 
@@ -315,15 +279,13 @@ export default function Canvas() {
             //background: "pink",
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            
+            alignItems: "center",           
         }}>
             <div 
             style={{
                 display: "inline-flex",
                 gap: "50px",
                 margin: "20px 0px",
-                //bac
             }}>
                 <button 
                 onClick={() => setAnimateHandler(!animateHandler)}
