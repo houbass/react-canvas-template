@@ -21,36 +21,12 @@ export default function Canvas() {
     // PATTERN INPUTS
     const canvasColor = "rgb(0, 0, 0)";
     const patternIputs = [
-        {
-            quantity: 500,
-            color: "white",
-            width: 50,
-            height: 5
-        },
-        {
-            quantity: 400,
-            color: "rgba(255, 105, 105)",
-            width: 20,
-            height: 50
-        },
-        {
-            quantity: 210,
-            color: "rgba(255, 255, 255)",
-            width: 100,
-            height: 20
-        },
         {  
-            quantity: 1000,
-            color: "rgba(255, 105, 105)",
-            width: 20,
-            height: 10
-        },
-        {
-            quantity: 100,
-            color: "rgba(255, 255, 255)",
+            quantity: 2500,
+            color: "white",
             width: 80,
-            height: 10
-        },
+            height: 15
+        }, 
 
     ]
 
@@ -118,28 +94,40 @@ export default function Canvas() {
                 
                 // UPDATING ANGLE
                 //angle.current += toRads(0.0001);
-                angle.current += 0.0000001;
+                angle.current += 0.00000005;
                 const loopMotion = angle.current
                 const quant = patternIputs.length;
                 
-                randomRectValues.forEach((i, index) => {           
-                    i.forEach((e, indexx) => {
 
-                        let shift;
+
+
+
+                randomRectValues.forEach((i, index) => {                           
+                    let shift;
+                    i.forEach((e, indexx) => {                
+                        const prevShift = shift;
+                        
                         switch(presset) {
                             case "normal":
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.0001 + loopMotion))); 
+                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
                                 break;
                             case "incoming":
-                                shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.0001 + loopMotion)));
+                                shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
                                 break;
                             default:
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.0001 + loopMotion))); 
+                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
                                 break;
                         }
-                            
-                        const thisY = ((((width / 2) - 70) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
 
+                        const thisY = ((((width / 2) - 70) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
+                            
+                        let color;
+                        if(prevShift > shift) {
+                            color = e.color                            
+                        } else{
+                            color = "transparent"
+                        }
+                    
                         drawRect(
                             context, 
                             e.x,    // X
@@ -147,12 +135,78 @@ export default function Canvas() {
                             e.width,    // WIDTH
                             e.height,   // HEIGHT
                             //angle.current,  // ANGLE
-                            0.8,
-                            e.color,
-                            e.opacity,
+                            //angle.current + (indexx / 1000),
+                            0,
+                            color,
+                            e.opacity
                         );
-                    });
+                    });                   
                 })
+            
+            
+            
+                randomRectValues.forEach((i, index) => {                           
+                    i.forEach((e, indexx) => {                                                            
+                        drawInside(
+                            context, 
+                            e.x,    // X
+                            0,   // Y
+                            e.width,    // WIDTH
+                            e.height,   // HEIGHT
+                            //angle.current,  // ANGLE
+                            0.8,
+                            "rgba(235, 160, 60)",
+                            e.opacity,
+                            height
+                        )
+                    });                   
+                })            
+            
+            
+                        
+                randomRectValues.forEach((i, index) => {                           
+                    let shift;
+                    i.forEach((e, indexx) => {                        
+                        const prevShift = shift;
+                        
+                        switch(presset) {
+                            case "normal":
+                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
+                                break;
+                            case "incoming":
+                                shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
+                                break;
+                            default:
+                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
+                                break;
+                        }
+
+                        const thisY = ((((width / 2) - 70) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
+                                                    
+                        let color;
+                        if(prevShift > shift) {
+                            color = "transparent"                           
+                        } else{
+                            color = e.color
+                        }
+                    
+                        drawRect(
+                            context, 
+                            e.x,    // X
+                            thisY,   // Y
+                            e.width,    // WIDTH
+                            e.height,   // HEIGHT
+                            //angle.current,  // ANGLE
+                            //angle.current + (indexx / 1000),
+                            0,
+                            color,
+                            e.opacity
+                        );
+                    });                   
+                })
+            
+            
+                        
             }
             drawing()
         };
@@ -199,11 +253,11 @@ export default function Canvas() {
     // DRAW RECTANGLE FUNCTION
     function drawRect(context, x, y, w, h, angle, color, opacity) {
 
-        context.save();
-        context.translate(x, y);
-
         const rx = Math.cos(angle) * w;
         const ry = Math.sin(angle) * w;
+
+        context.save();
+        context.translate(x, y);
 
         context.strokeStyle = "black";
         context.fillStyle = color;
@@ -215,6 +269,33 @@ export default function Canvas() {
         context.lineTo(rx, ry);
         context.lineTo(rx, ry + h);
         context.lineTo(0, h);
+
+        context.closePath();
+        context.globalAlpha = opacity;
+
+        context.fill();
+        //context.stroke();
+        context.restore();
+
+    }
+
+    function drawInside(context, x, y, w, h, angle, color, opacity, height) {
+        const rx = Math.cos(angle) * w;
+        const ry = Math.sin(angle) * w;
+
+        context.save();
+        context.translate(x, height / 2);
+
+        context.strokeStyle = "black";
+        context.fillStyle = color;
+        context.lineWidth = 3;
+
+        //context.translate(rx * -0.5, (ry + h) * -0.5);
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(rx, ry);
+        context.lineTo(rx, ry + 20);
+        context.lineTo(0, 20);
 
         context.closePath();
         context.globalAlpha = opacity;
