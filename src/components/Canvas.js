@@ -13,20 +13,33 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
     const [drawHandler, setDrawHandler] = useState(false);
     const [presset, setPresset] = useState("normal");
     const [randomRectValues, setRandomRectValues] = useState([]);
+    const [randomLineValues, setRandomLineValues] = useState([]);
     const [reset, setReset] = useState(true);
 
     // PATTERN INPUTS
-    const canvasColor = "rgb(0, 0, 0)";
+    const canvasColor = "rgb(255, 120, 90)";
+    const textColor = "white"
+
+    // ORBITS SETTINGS
     const patternIputs = [
         {  
-            quantity: 2500,
-            color: "rgba( 225, 50, 40)",
-            //color: "black",
-            width: 180,
-            height: 15
+            quantity: 500,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(25, 25, 25)",
+            width: 80,
+            height: 30
         }, 
+    ];
 
-    ]
+    // LINES SETTINGS 
+    const linesQuantity = 500;
+    const linesYRange = [-220, 220];
+    const linesColor = "rgb(225 , 225, 225)";
+    const linesMaxLength = 150;
+    const linesWeight = [0, 10];
+
+
+
 
     // DEG TO RADS
     function toRads(deg) {
@@ -38,25 +51,45 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
         return Math.round(min + (Math.random() * (max - min)))
     }
 
-    // CREATE RANDOM
+    // CREATE RANDOM ORBITING ELEMENTS
     function getRandomElements(quantity, index, color, size, w, h ) {
         let thisRandoms = [];
         for(let i = 0; i < quantity + 100; i++) {
-
             const thisValues = {
                 x: size / quantity * i - 50,
                 //y: ((((size / 2) - 70) / quant) * shift) + (index * (size / quant)) + (((size / 2) - 35) / quant) ,
-                width: randomRange(0, w),
-                height: randomRange(0, h),
+                width: randomRange(10, w),
+                height: randomRange(10, h),
                 color: color,
                 opacity: String(Math.round(Math.random()))
             };
-
             thisRandoms.push(thisValues);
         };
+        return thisRandoms;
+    };
+
+
+    function getRandomLines(width, quantity, color) {
+        let thisRandoms = [];
+        for(let i = 0; i < quantity; i++) {
+
+            const randomY = randomRange(0, randomRange(linesYRange[0], linesYRange[1]));
+            const randomX = randomRange(0, width);
+            const randomLength = randomRange(5, linesMaxLength);
+
+            const thisLine = {
+                color: color,
+                width: randomRange(linesWeight[0], linesWeight[1]),
+                x1: randomX,
+                y1: randomY,
+                x2: randomX + randomLength,
+                y2: randomY
+            }
+            thisRandoms.push(thisLine);
+        }
 
         return thisRandoms;
-    }
+    };
 
 
 
@@ -86,123 +119,33 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
             }
 
 
+            // DRAWING
             function drawing() {
                 // DRAWING FUNCTION
                 if(drawHandler === true) {
                     
                 } else{
                     context.clearRect(0, 0, width, height);
+                    context.fillStyle = canvasColor;
+                    context.fillRect(0, 0, width, height);
+
                 }
                 
                 // UPDATING ANGLE
-                angle.current += 0.00000002;
-                const loopMotion = angle.current
-                const quant = patternIputs.length;
+                angle.current += 0.0000002;                
 
-
-                // FRONTSIDE ELEMENTS
-                randomRectValues.forEach((i, index) => {                           
-                    let shift;
-                    i.forEach((e, indexx) => {                
-                        const prevShift = shift;
-                        
-                        switch(presset) {
-                            case "normal":
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
-                                break;
-                            case "incoming":
-                                shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
-                                break;
-                            default:
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
-                                break;
-                        }
-
-                        const thisY = ((((width / 2) - 70) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
-                            
-                        let color;
-                        if(prevShift > shift) {
-
-                            color = "transparent"                    
-                        } else{
-                            color = e.color        
-                        }
-                    
-                        drawRect(
-                            context, 
-                            e.x,    // X
-                            thisY,   // Y
-                            e.width,    // WIDTH
-                            e.height,   // HEIGHT
-                            //angle.current,  // ANGLE
-                            //angle.current + (indexx / 1000),
-                            0,
-                            color,
-                            e.opacity
-                        );
-                    });                   
-                })
+                // ORBITING ELEMENTS BACK                
+                orbitingEl(context, angle.current , "b", width, 0);
+                     
+                // MIDLE LINES
+                drawLines(context, width, angle.current);
             
-            
-                // TEXT
-                context.save();
-                context.translate(width / 9, height / 2);
-                context.beginPath();
-                context.fillStyle = "orange";
-                context.font = width / 6 + "px arial";
-                context.fillText("Hello world", 0, 0);
-                context.fill();
-                context.closePath();
-                context.restore();
-                
-                   
-                // BACKSIDE ELEMENTS
-                randomRectValues.forEach((i, index) => {                           
-                    let shift;
-                    i.forEach((e, indexx) => {                        
-                        const prevShift = shift;
-                        
-                        switch(presset) {
-                            case "normal":
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
-                                break;
-                            case "incoming":
-                                shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
-                                break;
-                            default:
-                                shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
-                                break;
-                        }
-
-                        const thisY = ((((width / 2) - 70) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
-                                                    
-                        let color;
-                        if(prevShift > shift) {
-                            color = e.color
-                        } else{
-
-                            color = "transparent"     
-                        }
-                    
-                        drawRect(
-                            context, 
-                            e.x,    // X
-                            thisY,   // Y
-                            e.width,    // WIDTH
-                            e.height,   // HEIGHT
-                            //angle.current,  // ANGLE
-                            //angle.current + (indexx / 1000),
-                            0,
-                            color,
-                            e.opacity
-                        );
-                    });                   
-                })                                   
+                // ORBITING ELEMENTS FRONT
+                orbitingEl(context, angle.current , "f", width, 0);                                                    
             }
-            drawing()
+            drawing();
         };
         render();
-
 
         //animation cancel when re-render component
         return () => cancelAnimationFrame(timerHolder);
@@ -231,6 +174,7 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
                 return getRandomElements(e.quantity, i, e.color, canSize, e.width, e.height)
             })
         );
+        setRandomLineValues(getRandomLines(width, linesQuantity, linesColor))
     };
 
     useEffect(() => { 
@@ -241,19 +185,82 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
     });
 
 
+
+    //ORBITING ELEMENTS (FRONTSIDE / BACKSIDE)
+    function orbitingEl(context, loopMotion, position, width, yChange) {
+        const quant = patternIputs.length;
+
+        // FRONTSIDE ELEMENTS
+        randomRectValues.forEach((i, index) => {                           
+            let shift;
+            i.forEach((e, indexx) => {                
+                const prevShift = shift;
+                
+                switch(presset) {
+                    case "normal":
+                        shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.001 + loopMotion))); 
+                        break;
+                    case "incoming":
+                        shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
+                        break;
+                    default:
+                        shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
+                        break;
+                }
+
+                const thisY = ((((width / 3) - 70 - yChange) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
+                    
+                let color;
+
+                if(position === "b") {
+                    if(prevShift > shift) {
+                        color = "transparent"; 
+
+                    } else{
+                        color = e.color;        
+                    }
+                } else if(position === "f") {
+                    if(prevShift > shift) {
+                        color = e.color;  
+                    } else{
+                        color = "transparent";       
+                    }
+                } else {
+                    color = "white";
+                }
+            
+                drawRect(
+                    context, 
+                    e.x,    // X
+                    thisY,   // Y
+                    e.width,    // WIDTH
+                    e.height,   // HEIGHT
+                    //angle.current,  // ANGLE
+                    //angle.current + (indexx / 1000),
+                    0,
+                    color,
+                    e.opacity
+                );
+
+            });                                       
+        });
+    };
+
+
+
+
+
     // DRAW RECTANGLE FUNCTION
     function drawRect(context, x, y, w, h, angle, color, opacity) {
 
         const rx = Math.cos(angle) * w;
-        const ry = Math.sin(angle) * w;
+        const ry = 0.5 * w;
 
         context.save();
         context.translate(x, y);
-
-        context.strokeStyle = "black";
+        //context.strokeStyle = "black";
         context.fillStyle = color;
         context.lineWidth = 3;
-
         //context.translate(rx * -0.5, (ry + h) * -0.5);
         context.beginPath();
         context.moveTo(0, 0);
@@ -267,8 +274,33 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
         context.fill();
         //context.stroke();
         context.restore();
-
     }
+
+
+
+    function drawLines(context, width, velocity) {
+        randomLineValues.forEach((e, i) => {
+
+            const thisVelocity = Math.sin(random.noise2D(i , 0, velocity ) * 100) * 100 
+
+            const thisX = e.x1 + thisVelocity;
+            //const randomY = randomRange(0, width / 2)
+            context.save();
+            context.translate(0, width / 2);
+            context.strokeStyle = linesColor;
+            //context.fillStyle = "blue";
+            context.lineWidth = e.width;
+            //context.translate(rx * -0.5, (ry + h) * -0.5);
+            context.beginPath();
+            context.moveTo(thisX, e.y1);
+            context.lineTo(thisX + Math.sin(random.noise2D(i , 100, velocity ) * 100) * 100, e.y2);
+            //context.closePath();
+            //context.globalAlpha = opacity;
+            //context.fill();
+            context.stroke();
+            context.restore();
+        })
+    };
 
 
     return (
