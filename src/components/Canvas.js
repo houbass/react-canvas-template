@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 //CANVAS SKETCH FUNKCE
 const random = require ('canvas-sketch-util/random');
 
-export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImagesArr }) {
+export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandler, images }) {
 
     // REFS 
     const angle = useRef(0);
@@ -37,9 +37,6 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
     const linesColor = "rgb(225 , 225, 225)";
     const linesMaxLength = 150;
     const linesWeight = [0, 10];
-
-
-
 
     // DEG TO RADS
     function toRads(deg) {
@@ -108,8 +105,6 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
         const height = canvas.height;
 
 
-        const allImages = [];
-
         // animation function
         function render() { 
 
@@ -120,19 +115,15 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
                 timerHolder = null;
             }
 
-
-            function imgCheck() {
-                if(timerHolder <= 1200 && timerHolder > 2){
-                    const dataURL = canvas.toDataURL("image/png", 1.0);
-                    allImages.push(dataURL)
-                }
-                
-                if(timerHolder === 700) {
-                    console.log("NOW");
-                    setImagesArr(allImages)
+            // RECORDING
+            function imgCapture() {
+                if(recHandler === true) {
+                    images.current=([
+                        ...images.current, canvas.toDataURL("image/png", 1.0)
+                    ])
                 }
             }
-            imgCheck()
+            imgCapture()
 
             // DRAWING
             function drawing() {
@@ -143,7 +134,6 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
                     context.clearRect(0, 0, width, height);
                     context.fillStyle = canvasColor;
                     context.fillRect(0, 0, width, height);
-
                 }
                 
                 // UPDATING ANGLE
@@ -323,7 +313,6 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
         style={{
             width: "100%",
             height: "100vh",
-            //background: "pink",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",           
@@ -331,8 +320,8 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImages
             <div 
             style={{
                 display: "inline-flex",
-                gap: "50px",
-                margin: "20px 0px",
+                gap: "15px",
+                marginBottom: "10px"
             }}>
                 <button 
                 onClick={() => setAnimateHandler(!animateHandler)}

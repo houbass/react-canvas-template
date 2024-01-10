@@ -1,55 +1,37 @@
 import { useRef, useState } from 'react';
 import './App.css';
 
-
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
-
 //components
 import Canvas from './components/Canvas';
 import CanvasRecorder from './components/Recording';
+import DownloadImages from './components/DownloadImages';
 
 function App() {
 
+  // REFS
   const canvasRef = useRef(null);   
+  const images = useRef([]);
+
+  // STATES
   const [canvasSize, setCanvasSize] = useState(0);
-  const [imagesArr, setImagesArr] = useState([]);
-
-
-  console.log(imagesArr);
-
-
-  // DOWNLOAD ZIP OF PNGs
-  const handleDownload = async (images) => {
-    const zip = new JSZip();
-
-    // Assuming images is an array of file paths or blobs
-    for (let i = 0; i < images.length; i++) {
-      const image = images[i];
-      const imageData = await fetch(image).then((response) => response.blob());
-
-      // You can adjust the file name in the zip file as needed
-      zip.file(`${i + 1}.png`, imageData);
-    }
-
-    // Generate the zip file
-    const content = await zip.generateAsync({ type: 'blob' });
-
-    // Save the zip file
-    saveAs(content, 'images.zip');
-  };
-
+  const [recHandler, setRecHandler] = useState(false);
 
   
   return (
     <div className="App">
-      <button onClick={() => handleDownload(imagesArr)}>Download Images as ZIP</button>
+      
+      <DownloadImages 
+        recHandler={recHandler}
+        setRecHandler={setRecHandler} 
+        images={images}
+      />
 
       <Canvas 
       canvasRef={canvasRef}
       canvasSize={canvasSize} 
       setCanvasSize={setCanvasSize} 
-      setImagesArr={setImagesArr}
+      recHandler={recHandler} 
+      images={images}
       />
 
       <CanvasRecorder 

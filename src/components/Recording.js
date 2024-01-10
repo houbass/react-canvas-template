@@ -22,10 +22,7 @@ const CanvasRecorder = ({ canvasRef, canvasSize }) => {
   // STOP RECORDING AND DOWNLOAD
   function stopRec() {
     recorder.stop();
-    recorder.addEventListener('dataavailable', (evt) => {
-      console.log(evt.data)
-
-      
+    recorder.addEventListener('dataavailable', (evt) => {      
       const url = URL.createObjectURL(evt.data);
       videoRef.current.src = url;
 
