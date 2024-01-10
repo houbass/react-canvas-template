@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 //CANVAS SKETCH FUNKCE
 const random = require ('canvas-sketch-util/random');
 
-export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
+export default function Canvas({ canvasRef, canvasSize, setCanvasSize, setImagesArr }) {
 
     // REFS 
     const angle = useRef(0);
@@ -108,6 +108,8 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
         const height = canvas.height;
 
 
+        const allImages = [];
+
         // animation function
         function render() { 
 
@@ -118,6 +120,19 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize }) {
                 timerHolder = null;
             }
 
+
+            function imgCheck() {
+                if(timerHolder <= 1200 && timerHolder > 2){
+                    const dataURL = canvas.toDataURL("image/png", 1.0);
+                    allImages.push(dataURL)
+                }
+                
+                if(timerHolder === 700) {
+                    console.log("NOW");
+                    setImagesArr(allImages)
+                }
+            }
+            imgCheck()
 
             // DRAWING
             function drawing() {

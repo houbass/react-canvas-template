@@ -9,8 +9,8 @@ const CanvasRecorder = ({ canvasRef, canvasSize }) => {
   function createMedia() {
     const stream = canvas.current.captureStream(60);
     // Adjust the videoBitsPerSecond to control video quality
-    const videoBitsPerSecond = 8000000000000; // Adjust as needed
-    setRecorder(new MediaRecorder(stream, { type: 'video/mp4;codecs=h264', videoBitsPerSecond }));
+    const videoBitsPerSecond = 960000000000000000; // Adjust as needed
+    setRecorder(new MediaRecorder(stream, { type: 'video/webm;codecs=h265', videoBitsPerSecond }));
   }
 
   // START RECORDING
@@ -23,13 +23,16 @@ const CanvasRecorder = ({ canvasRef, canvasSize }) => {
   function stopRec() {
     recorder.stop();
     recorder.addEventListener('dataavailable', (evt) => {
+      console.log(evt.data)
+
+      
       const url = URL.createObjectURL(evt.data);
       videoRef.current.src = url;
 
       // DOWNLOAD VIDEO
       const downloadVideoLink = document.createElement('a');
       downloadVideoLink.href = url;
-      downloadVideoLink.download = 'recorded-video.mp4';
+      downloadVideoLink.download = 'recorded-video.webm';
       document.body.appendChild(downloadVideoLink);
       downloadVideoLink.click();
       document.body.removeChild(downloadVideoLink);
