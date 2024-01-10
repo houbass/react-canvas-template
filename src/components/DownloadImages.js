@@ -29,11 +29,9 @@ export default function DownloadImages({ recHandler, setRecHandler, images }) {
     return(
     <div 
     style={{
-        width: "100%",
         display: "inline-flex",
         justifyContent: "center",
         gap: "15px",
-        margin: "10px 0px",
     }}
     >
         <button 
@@ -51,6 +49,7 @@ export default function DownloadImages({ recHandler, setRecHandler, images }) {
 
         <button 
         onClick={() => handleDownload(images.current)}
+        disabled={images.current.length > 0 ? false : true}
         >Download Images as ZIP</button>
     </div>
     )

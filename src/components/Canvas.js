@@ -3,18 +3,14 @@ import React, { useEffect, useRef, useState } from "react";
 //CANVAS SKETCH FUNKCE
 const random = require ('canvas-sketch-util/random');
 
-export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandler, images }) {
+export default function Canvas({ canvasRef, canvasSize, recHandler, images, animateHandler, drawHandler, presset, reset }) {
 
     // REFS 
     const angle = useRef(0);
 
     // STATES
-    const [animateHandler, setAnimateHandler] = useState(true);
-    const [drawHandler, setDrawHandler] = useState(false);
-    const [presset, setPresset] = useState("normal");
     const [randomRectValues, setRandomRectValues] = useState([]);
     const [randomLineValues, setRandomLineValues] = useState([]);
-    const [reset, setReset] = useState(true);
 
     // PATTERN INPUTS
     const canvasColor = "rgb(255, 120, 90)";
@@ -29,11 +25,18 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandle
             width: 80,
             height: 30
         }, 
+        {  
+            quantity: 100,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(25, 25, 25)",
+            width: 80,
+            height: 30
+        }, 
     ];
 
     // LINES SETTINGS 
-    const linesQuantity = 500;
-    const linesYRange = [-220, 220];
+    const linesQuantity = 50;
+    const linesYRange = [canvasSize * -1 / 10, canvasSize / 10];
     const linesColor = "rgb(225 , 225, 225)";
     const linesMaxLength = 150;
     const linesWeight = [0, 10];
@@ -65,7 +68,7 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandle
         return thisRandoms;
     };
 
-
+    // CREATE RANDOM LINES
     function getRandomLines(width, quantity, color) {
         let thisRandoms = [];
         for(let i = 0; i < quantity; i++) {
@@ -159,43 +162,27 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandle
 
     // CREATE RANDOM PARAMETERS
     useEffect(() => {
-        resizeFun();
+        resetFun();
+        //resizeFun()
         angle.current = 0;
         // eslint-disable-next-line
-    }, [reset])
+    }, [reset, canvasSize])
 
-
-    //RESIZE FUNCTION
-    function resizeFun() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        const compare = [width, height].sort((a, b) => a - b);
-        const canSize = compare[0] * 0.9
-
-        setCanvasSize(canSize);
+    function resetFun() {
         setRandomRectValues(
             patternIputs.map((e, i) => {
-                return getRandomElements(e.quantity, i, e.color, canSize, e.width, e.height)
+                return getRandomElements(e.quantity, i, e.color, canvasSize, e.width, e.height)
             })
         );
-        setRandomLineValues(getRandomLines(width, linesQuantity, linesColor))
-    };
-
-    useEffect(() => { 
-        window.addEventListener("resize", resizeFun);
-        return () => {
-            window.removeEventListener("resize", resizeFun);
-        }
-    });
-
+        setRandomLineValues(getRandomLines(canvasSize, linesQuantity, linesColor))
+    }
 
 
     //ORBITING ELEMENTS (FRONTSIDE / BACKSIDE)
     function orbitingEl(context, loopMotion, position, width, yChange) {
         const quant = patternIputs.length;
 
-        // FRONTSIDE ELEMENTS
+        //ELEMENTS
         randomRectValues.forEach((i, index) => {                           
             let shift;
             i.forEach((e, indexx) => {                
@@ -317,33 +304,7 @@ export default function Canvas({ canvasRef, canvasSize, setCanvasSize, recHandle
             flexDirection: "column",
             alignItems: "center",           
         }}>
-            <div 
-            style={{
-                display: "inline-flex",
-                gap: "15px",
-                marginBottom: "10px"
-            }}>
-                <button 
-                onClick={() => setAnimateHandler(!animateHandler)}
-                >animation on/off</button>
 
-                <button 
-                onClick={() => setDrawHandler(!drawHandler)}
-                >draw on/off</button>
-
-                <select onChange={(e) => {
-                    setPresset(e.target.value);
-                    setReset(!reset);
-                    }}>
-                    <option>normal</option>
-                    <option>incoming</option>
-                </select>
-
-                <button 
-                onClick={() => setReset(!reset)}
-                >reset</button>
-
-            </div>
             <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} style={{background: canvasColor}} />
         </div>
     )
