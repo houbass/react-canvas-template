@@ -13,33 +13,62 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
     const [randomLineValues, setRandomLineValues] = useState([]);
 
     // PATTERN INPUTS
-    const canvasColor = "rgb(255, 120, 90)";
+    const canvasColor = "rgb(25, 25, 25)";
     const textColor = "white"
 
     // ORBITS SETTINGS
     const patternIputs = [
         {  
-            quantity: 500,
+            quantity: 90,
             //color: "rgba( 225, 50, 40)",
-            color: "rgb(25, 25, 25)",
-            width: 80,
-            height: 30
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
         }, 
         {  
-            quantity: 100,
+            quantity: 90,
             //color: "rgba( 225, 50, 40)",
-            color: "rgb(25, 25, 25)",
-            width: 80,
-            height: 30
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
+        },     
+        {  
+            quantity: 90,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
         }, 
+        {  
+            quantity: 90,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
+        }, 
+        {  
+            quantity: 90,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
+        }, 
+        {  
+            quantity: 90,
+            //color: "rgba( 225, 50, 40)",
+            color: "rgb(225, 225, 225)",
+            width: 15,
+            height: 15
+        }, 
+
     ];
 
     // LINES SETTINGS 
     const linesQuantity = 50;
     const linesYRange = [canvasSize * -1 / 10, canvasSize / 10];
-    const linesColor = "rgb(225 , 225, 225)";
-    const linesMaxLength = 150;
-    const linesWeight = [0, 10];
+    const linesColor = "rgb(185, 185, 185)";
+    const linesMaxLength = 10;
+    const linesWeight = [1, 5];
 
     // DEG TO RADS
     function toRads(deg) {
@@ -99,6 +128,7 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
         // canvas def
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
+        const context2 = canvas.getContext("2d");
 
         // Animation handler (zabranuje aby se animace zrychlovala po kazdem updatu)
         let timerHolder = null;
@@ -132,9 +162,11 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
             function drawing() {
                 // DRAWING FUNCTION
                 if(drawHandler === true) {
-                    
+
                 } else{
-                    context.clearRect(0, 0, width, height);
+                    //context.clearRect(0, 0, width, height);
+                    //context2.clearRect(0, 0, width, height);
+
                     context.fillStyle = canvasColor;
                     context.fillRect(0, 0, width, height);
                 }
@@ -146,7 +178,7 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                 orbitingEl(context, angle.current , "b", width, 0);
                      
                 // MIDLE LINES
-                drawLines(context, width, angle.current);
+                //drawLines(context, width, angle.current);
             
                 // ORBITING ELEMENTS FRONT
                 orbitingEl(context, angle.current , "f", width, 0);                                                    
@@ -180,8 +212,9 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
 
     //ORBITING ELEMENTS (FRONTSIDE / BACKSIDE)
     function orbitingEl(context, loopMotion, position, width, yChange) {
-        const quant = patternIputs.length;
-
+        //const quant = patternIputs.length;
+        const quant = 2;
+        //const quant = 
         //ELEMENTS
         randomRectValues.forEach((i, index) => {                           
             let shift;
@@ -190,48 +223,62 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                 
                 switch(presset) {
                     case "normal":
-                        shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.001 + loopMotion))); 
+                        shift = Math.sin(toRads((random.noise2D(indexx, 0, 0.0001 + loopMotion) + (index * 30)))); 
                         break;
                     case "incoming":
-                        shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
+                        shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 100000, 0, 0.0001 + loopMotion) + (index * 30)));
                         break;
                     default:
                         shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
                         break;
                 }
 
-                const thisY = ((((width / 3) - 70 - yChange) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
+                const thisY = (((width / 4)* shift * 0.8) + ((width / 2)));      
+                const thisYMin = (((width / 4) * - 1 * 0.8) + ((width / 2))); 
+                const thisYMax = (((width / 4) * 1 * 0.8) + ((width / 2))); 
+                const minMax = [thisYMin, thisYMax];
+                //console.log(minMax[1])
+
                     
                 let color;
+                let scaleVector;
 
                 if(position === "b") {
                     if(prevShift > shift) {
                         color = "transparent"; 
+                        scaleVector = -1;
 
                     } else{
                         color = e.color;        
+                        scaleVector = 1;
                     }
                 } else if(position === "f") {
                     if(prevShift > shift) {
                         color = e.color;  
+                        scaleVector = -1;
                     } else{
-                        color = "transparent";       
+                        color = "transparent";     
+                        scaleVector = 1  
                     }
                 } else {
-                    color = "white";
+                    color = "white"; 
+                    scaleVector = 1;
                 }
             
                 drawRect(
                     context, 
                     e.x,    // X
-                    thisY,   // Y
+                    thisY,  // Y
                     e.width,    // WIDTH
                     e.height,   // HEIGHT
                     //angle.current,  // ANGLE
                     //angle.current + (indexx / 1000),
                     0,
                     color,
-                    e.opacity
+                    e.opacity,
+                    scaleVector,
+                    shift,
+                    minMax
                 );
 
             });                                       
@@ -243,7 +290,29 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
 
 
     // DRAW RECTANGLE FUNCTION
-    function drawRect(context, x, y, w, h, angle, color, opacity) {
+    function drawRect(context, x, y, w, h, angle, color, opacity, scaleVector, shift, minMax) {
+
+
+        //console.log(shift)
+        
+        const mid = ((minMax[1] - minMax[0]) / 2) + minMax[0]
+        //console.log(Math.sin(450))
+
+        //const thisShift = (5 * (Math.sin(toRads(y/ 8000)))) * scaleVector * 1;
+
+        let thisShift;
+            if(scaleVector < 0){
+                thisShift = 4 + (2 * Math.sin(toRads(mid - y / 3600)))
+            } else{
+                thisShift = 0.5 + ((2 * Math.sin(toRads(mid - y / 3600))) * -1)
+            }
+
+            // IF BELLOW ZERO
+            if(thisShift <0.5) {
+                thisShift = 0.5;
+            }
+
+    
 
         const rx = Math.cos(angle) * w;
         const ry = 0.5 * w;
@@ -255,13 +324,13 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
         context.lineWidth = 3;
         //context.translate(rx * -0.5, (ry + h) * -0.5);
         context.beginPath();
-        context.moveTo(0, 0);
-        context.lineTo(rx, ry);
-        context.lineTo(rx, ry + h);
-        context.lineTo(0, h);
+        context.arc(0, 0, thisShift, 0, 2 * Math.PI);
+        //context.fillRect(0, 0, 10, 10);
+        context.font = "20px serif";
+        //context.fillText(y.toFixed(0), 10, 0);
 
         context.closePath();
-        context.globalAlpha = opacity;
+        //context.globalAlpha = opacity;
 
         context.fill();
         //context.stroke();
@@ -285,9 +354,9 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
             //context.translate(rx * -0.5, (ry + h) * -0.5);
             context.beginPath();
             context.moveTo(thisX, e.y1);
-            context.lineTo(thisX + Math.sin(random.noise2D(i , 100, velocity ) * 100) * 100, e.y2);
+            context.lineTo(thisX + Math.sin(random.noise2D(i , 100, velocity ) * 10) * 200, e.y2);
             //context.closePath();
-            //context.globalAlpha = opacity;
+            //context.globalAlpha = Math.sin(random.noise2D(i , 100, velocity ) * 100);
             //context.fill();
             context.stroke();
             context.restore();
@@ -305,7 +374,7 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
             alignItems: "center",           
         }}>
 
-            <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} style={{background: canvasColor}} />
+            <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} style={{background: canvasColor, }} />
         </div>
     )
 }

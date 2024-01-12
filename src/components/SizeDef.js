@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 export default function SizeDef({ setCanvasSize }) {
 
     // STATES
-    const [autosizeHandler, setAutosizeHandler] = useState(true);
+    const [autosizeHandler, setAutosizeHandler] = useState(false);
     const [manualWidth, setManualWidth] = useState(1000);
 
     // RESIZE FUNCTION
@@ -42,7 +42,13 @@ export default function SizeDef({ setCanvasSize }) {
 
     // INIT GET SIZE FUN FIRST TIME TO GET SIZE OF CANVAS
     useEffect(() => { 
-        setSizeFun("auto");
+
+        if(autosizeHandler === true) {
+            setSizeFun("auto");
+        } else{
+            setSizeFun(manualWidth)
+        }
+        
         // eslint-disable-next-line
     }, []);
 
