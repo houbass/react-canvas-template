@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 export default function SizeDef({ setCanvasSize }) {
 
     // STATES
-    const [autosizeHandler, setAutosizeHandler] = useState(true);
+    const [autosizeHandler, setAutosizeHandler] = useState(false);
     const [manualWidth, setManualWidth] = useState(1000);
 
     // RESIZE FUNCTION
@@ -23,6 +23,14 @@ export default function SizeDef({ setCanvasSize }) {
         setCanvasSize(canSize);
     };
 
+    function sizeInit() {
+        if(autosizeHandler === true) {
+            setSizeFun("auto");
+        } else{
+            setSizeFun(manualWidth);
+        }
+    }
+
     // SET SIZE WHEN PRESS ENTER
     function keyCheck(e) {
         if(e.key === "Enter" && autosizeHandler === false) {
@@ -39,12 +47,11 @@ export default function SizeDef({ setCanvasSize }) {
         // eslint-disable-next-line
     });
 
-
-    // INIT GET SIZE FUN FIRST TIME TO GET SIZE OF CANVAS
-    useEffect(() => { 
-        setSizeFun("auto");
+    // INIT SIZE FUN FIRST and on autosizeHandler change TIME TO GET SIZE OF CANVAS
+    useEffect(() => {        
+        sizeInit()
         // eslint-disable-next-line
-    }, []);
+    }, [autosizeHandler]);
 
     return(
         <div style={{
@@ -53,12 +60,7 @@ export default function SizeDef({ setCanvasSize }) {
             gap: "15px",
         }}>
             <input 
-            onChange={() => {
-                setAutosizeHandler(!autosizeHandler);
-                if(autosizeHandler !== true) {
-                    setSizeFun("auto")
-                } 
-            }} 
+            onChange={() => setAutosizeHandler(!autosizeHandler)} 
             type='checkbox' 
             id='autowidth' 
             name='autowidth' 
