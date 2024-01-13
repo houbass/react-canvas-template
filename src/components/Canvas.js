@@ -1,96 +1,92 @@
 import React, { useEffect, useRef, useState } from "react";
 
+// FUNCTIONS
+import {drawLine, bezierCurve} from "./DrawingFunctions";
+import { curvePatternFun } from "./PaternFunctions";
+import { toRads, randomRange } from "./HelpingFunctions";
+
 //CANVAS SKETCH FUNKCE
-const random = require ('canvas-sketch-util/random');
+const random = require ('canvas-sketch-util/random')
 
 export default function Canvas({ canvasRef, canvasSize, recHandler, images, animateHandler, drawHandler, presset, reset }) {
 
     // REFS 
     const angle = useRef(0);
+    const v = useRef(0);
+
+    const opacity = useRef(0);
+    const opacity2 = useRef([0, 0, 0, 0])
 
     // STATES
-    const [randomRectValues, setRandomRectValues] = useState([]);
-    const [randomLineValues, setRandomLineValues] = useState([]);
+    const [curvesPattern, setCurvesPattern] = useState([]);
 
     // PATTERN INPUTS
     const canvasColor = "rgb(255, 120, 90)";
-    const textColor = "white"
 
     // ORBITS SETTINGS
-    const patternIputs = [
-        {  
-            quantity: 500,
-            //color: "rgba( 225, 50, 40)",
-            color: "rgb(25, 25, 25)",
-            width: 80,
-            height: 30
-        }, 
-        {  
-            quantity: 100,
-            //color: "rgba( 225, 50, 40)",
-            color: "rgb(25, 25, 25)",
-            width: 80,
-            height: 30
-        }, 
+    /*
+    const curveIputs = [
+        {
+            yAxis: 500,
+            firstYShift: 0,
+            inputShifts: [0, 0, 0]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 10,
+            inputShifts: [0, 0, 0]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 20,
+            inputShifts: [0, 0, 0]
+        },
+    ]
+    */
+
+    
+    const curveIputs = [
+        {
+            yAxis: 500,
+            firstYShift: 0,
+            inputShifts: [-150, -300, -300]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 0,
+            inputShifts: [-130, -350, -300]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 150,
+            inputShifts: [-100, -450, -300]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 200,
+            inputShifts: [-50, -550, -300]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 200,
+            inputShifts: [-80, -550, -350]
+        },
+        {
+            yAxis: 500,
+            firstYShift: 200,
+            inputShifts: [-100, -550, -450]
+        },
     ];
+    
 
-    // LINES SETTINGS 
-    const linesQuantity = 50;
-    const linesYRange = [canvasSize * -1 / 10, canvasSize / 10];
-    const linesColor = "rgb(225 , 225, 225)";
-    const linesMaxLength = 150;
-    const linesWeight = [0, 10];
-
-    // DEG TO RADS
-    function toRads(deg) {
-        return (deg / (Math.PI / 180));
-    }
-
-    // RANDOM NUMBER
-    function randomRange(min, max) {
-        return Math.round(min + (Math.random() * (max - min)))
-    }
-
-    // CREATE RANDOM ORBITING ELEMENTS
-    function getRandomElements(quantity, index, color, size, w, h ) {
-        let thisRandoms = [];
-        for(let i = 0; i < quantity + 100; i++) {
-            const thisValues = {
-                x: size / quantity * i - 50,
-                //y: ((((size / 2) - 70) / quant) * shift) + (index * (size / quant)) + (((size / 2) - 35) / quant) ,
-                width: randomRange(10, w),
-                height: randomRange(10, h),
-                color: color,
-                opacity: String(Math.round(Math.random()))
-            };
-            thisRandoms.push(thisValues);
-        };
-        return thisRandoms;
-    };
-
-    // CREATE RANDOM LINES
-    function getRandomLines(width, quantity, color) {
-        let thisRandoms = [];
-        for(let i = 0; i < quantity; i++) {
-
-            const randomY = randomRange(0, randomRange(linesYRange[0], linesYRange[1]));
-            const randomX = randomRange(0, width);
-            const randomLength = randomRange(5, linesMaxLength);
-
-            const thisLine = {
-                color: color,
-                width: randomRange(linesWeight[0], linesWeight[1]),
-                x1: randomX,
-                y1: randomY,
-                x2: randomX + randomLength,
-                y2: randomY
-            }
-            thisRandoms.push(thisLine);
-        }
-
-        return thisRandoms;
-    };
-
+    // GET CURVES
+    useEffect(() => {
+        const thisValus = [];
+        curveIputs.forEach(e => {
+            thisValus.push(curvePatternFun(canvasSize , e.yAxis, e.firstYShift, e.inputShifts))
+        })
+        setCurvesPattern(thisValus)
+    }, [canvasSize])
 
 
     //ANIMATION IS RUNING HERE
@@ -107,7 +103,6 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
         const width = canvas.width;
         const height = canvas.height;
 
-
         // animation function
         function render() { 
 
@@ -118,15 +113,8 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                 timerHolder = null;
             }
 
-            // RECORDING
-            function imgCapture() {
-                if(recHandler === true) {
-                    images.current=([
-                        ...images.current, canvas.toDataURL("image/png", 1.0)
-                    ])
-                }
-            }
-            imgCapture()
+            // CAPTURE IMAGES
+            imgCapture(canvas)
 
             // DRAWING
             function drawing() {
@@ -134,22 +122,48 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                 if(drawHandler === true) {
                     
                 } else{
-                    context.clearRect(0, 0, width, height);
+                    //context.clearRect(0, 0, width, height);
                     context.fillStyle = canvasColor;
                     context.fillRect(0, 0, width, height);
                 }
                 
                 // UPDATING ANGLE
-                angle.current += 0.0000002;                
+                //angle.current += 1;                
 
-                // ORBITING ELEMENTS BACK                
-                orbitingEl(context, angle.current , "b", width, 0);
-                     
-                // MIDLE LINES
-                drawLines(context, width, angle.current);
-            
-                // ORBITING ELEMENTS FRONT
-                orbitingEl(context, angle.current , "f", width, 0);                                                    
+                // LINES  
+                //let lineV = 1;     
+                if(angle.current > width){
+                    v.current = -10;
+                }else if(angle.current <= 0){
+                    v.current = 10;
+                }
+                angle.current += v.current; 
+
+                drawLine(context, 100 + angle.current, 200)            
+                drawLine(context, 200 - angle.current, 500)             
+                
+
+
+
+                curvesPattern.forEach((curve, index) => {
+                    //let check = (Math.sin(toRads(opacity.current + (index * (180 / curvesPattern.length)))) + 1) / 2;
+                    let check = Math.sin(toRads(opacity.current + (index * (180 / curvesPattern.length))))    
+
+                    if(check < 0) {
+                        check = 0;
+                    }
+
+                    //console.log(check)
+                    const thisOpacity = check / 2
+
+                    curve.forEach(e => {
+                        bezierCurve(context, e.start, e.cp1, e.cp2, e.end, thisOpacity)
+                    })
+                })
+
+                opacity.current += 3;
+
+
             }
             drawing();
         };
@@ -160,140 +174,22 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
     });
 
 
-    // CREATE RANDOM PARAMETERS
+
+    // CAPTURE IMAGES
+    function imgCapture(canvas) {
+        if(recHandler === true) {
+            images.current=([
+                ...images.current, canvas.toDataURL("image/png", 1.0)
+            ])
+        }
+    }
+
+    // ON START / RESET / CANVAS SIZE
     useEffect(() => {
-        resetFun();
-        //resizeFun()
-        angle.current = 0;
+        //angle.current = 0;
+
         // eslint-disable-next-line
     }, [reset, canvasSize])
-
-    function resetFun() {
-        setRandomRectValues(
-            patternIputs.map((e, i) => {
-                return getRandomElements(e.quantity, i, e.color, canvasSize, e.width, e.height)
-            })
-        );
-        setRandomLineValues(getRandomLines(canvasSize, linesQuantity, linesColor))
-    }
-
-
-    //ORBITING ELEMENTS (FRONTSIDE / BACKSIDE)
-    function orbitingEl(context, loopMotion, position, width, yChange) {
-        const quant = patternIputs.length;
-
-        //ELEMENTS
-        randomRectValues.forEach((i, index) => {                           
-            let shift;
-            i.forEach((e, indexx) => {                
-                const prevShift = shift;
-                
-                switch(presset) {
-                    case "normal":
-                        shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.001 + loopMotion))); 
-                        break;
-                    case "incoming":
-                        shift = Math.sin(toRads(random.noise2D(indexx / loopMotion / 10000, 0, 0.00001 + loopMotion)));
-                        break;
-                    default:
-                        shift = Math.sin(toRads(random.noise2D(indexx, 0, 0.00001 + loopMotion))); 
-                        break;
-                }
-
-                const thisY = ((((width / 3) - 70 - yChange) / quant) * shift) + (index * (width / quant)) + (((width / 2) - 35) / quant);
-                    
-                let color;
-
-                if(position === "b") {
-                    if(prevShift > shift) {
-                        color = "transparent"; 
-
-                    } else{
-                        color = e.color;        
-                    }
-                } else if(position === "f") {
-                    if(prevShift > shift) {
-                        color = e.color;  
-                    } else{
-                        color = "transparent";       
-                    }
-                } else {
-                    color = "white";
-                }
-            
-                drawRect(
-                    context, 
-                    e.x,    // X
-                    thisY,   // Y
-                    e.width,    // WIDTH
-                    e.height,   // HEIGHT
-                    //angle.current,  // ANGLE
-                    //angle.current + (indexx / 1000),
-                    0,
-                    color,
-                    e.opacity
-                );
-
-            });                                       
-        });
-    };
-
-
-
-
-
-    // DRAW RECTANGLE FUNCTION
-    function drawRect(context, x, y, w, h, angle, color, opacity) {
-
-        const rx = Math.cos(angle) * w;
-        const ry = 0.5 * w;
-
-        context.save();
-        context.translate(x, y);
-        //context.strokeStyle = "black";
-        context.fillStyle = color;
-        context.lineWidth = 3;
-        //context.translate(rx * -0.5, (ry + h) * -0.5);
-        context.beginPath();
-        context.moveTo(0, 0);
-        context.lineTo(rx, ry);
-        context.lineTo(rx, ry + h);
-        context.lineTo(0, h);
-
-        context.closePath();
-        context.globalAlpha = opacity;
-
-        context.fill();
-        //context.stroke();
-        context.restore();
-    }
-
-
-
-    function drawLines(context, width, velocity) {
-        randomLineValues.forEach((e, i) => {
-
-            const thisVelocity = Math.sin(random.noise2D(i , 0, velocity ) * 100) * 100 
-
-            const thisX = e.x1 + thisVelocity;
-            //const randomY = randomRange(0, width / 2)
-            context.save();
-            context.translate(0, width / 2);
-            context.strokeStyle = linesColor;
-            //context.fillStyle = "blue";
-            context.lineWidth = e.width;
-            //context.translate(rx * -0.5, (ry + h) * -0.5);
-            context.beginPath();
-            context.moveTo(thisX, e.y1);
-            context.lineTo(thisX + Math.sin(random.noise2D(i , 100, velocity ) * 100) * 100, e.y2);
-            //context.closePath();
-            //context.globalAlpha = opacity;
-            //context.fill();
-            context.stroke();
-            context.restore();
-        })
-    };
-
 
     return (
         <div 
@@ -305,7 +201,7 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
             alignItems: "center",           
         }}>
 
-            <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} style={{background: canvasColor}} />
+            <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} />
         </div>
     )
 }
