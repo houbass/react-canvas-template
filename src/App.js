@@ -18,7 +18,7 @@ function App() {
   const [canvasSize, setCanvasSize] = useState(0);
   const [recHandler, setRecHandler] = useState(false);
   // annimation settings states
-  const [animateHandler, setAnimateHandler] = useState(true);
+  const [animateHandler, setAnimateHandler] = useState(false);
   const [drawHandler, setDrawHandler] = useState(false);
   const [presset, setPresset] = useState("normal");
   const [reset, setReset] = useState(true);
