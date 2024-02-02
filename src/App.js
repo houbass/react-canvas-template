@@ -4,7 +4,6 @@ import './App.css';
 //components
 import Ui from './components/Ui';
 import Canvas from './components/Canvas';
-import CanvasRecorder from './components/Recording';
 
 function App() {
 
@@ -25,7 +24,8 @@ function App() {
   
   return (
     <div className="App">
-
+      
+      {/*
       <Ui 
         setCanvasSize={setCanvasSize} 
         recHandler={recHandler}
@@ -39,6 +39,7 @@ function App() {
         reset={reset}
         setReset={setReset}
       />
+      */}
       
       <Canvas 
       canvasRef={canvasRef}
@@ -51,10 +52,7 @@ function App() {
       reset={reset}
       />
 
-      <CanvasRecorder 
-      canvasRef={canvasRef} 
-      canvasSize={canvasSize} 
-      />
+
 
     </div>
   );

@@ -4,3 +4,31 @@
 }
 
 
+#canvas {
+  position: fixed;
+  top: 0;
+  z-index: -1;
+}
+
+.title {
+  color: rgb(20,20,20);
+  font-size: 100px;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.title2 {
+  color: rgb(220,220,220);
+  font-size: 100px;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.pad1 {
+  padding: 100px 100px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+}

@@ -17,6 +17,8 @@ export default function Ui({
             flexDirection: "column",
             gap: "10px",
             padding: "20px 0",
+            background: "orange",
+            position: "absolute",
         }}>
             <SizeDef 
             setCanvasSize={setCanvasSize}

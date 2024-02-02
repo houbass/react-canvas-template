@@ -1,26 +1,78 @@
 import React, { useEffect, useRef, useState } from "react";
 
+
 //CANVAS SKETCH FUNKCE
 const random = require ('canvas-sketch-util/random');
 
-export default function Canvas({ canvasRef, canvasSize, recHandler, images, animateHandler, drawHandler, presset, reset }) {
-
-    // REFS 
-    const angle = useRef(0);
+export default function Canvas({ canvasRef, recHandler, images, animateHandler, drawHandler, presset, reset }) {
 
     // STATES
-    const [xShift, setXShift] = useState(0);
-    const [yShift, setYShift] = useState(700);
+    const [yShift, setYShift] = useState(0);
 
-    // PATTERN INPUTS
-    const canvasColor = "rgb(255, 120, 90)";
 
-    const horizontY = 650;
-    const horizontX = 500;
+    const [canvasSize, setCanvasSize] = useState({width: 0, height: 0});
+    const [randomPoints, setRandomPoints] = useState([]);
+    const [randomPoints2, setRandomPoints2] = useState([]);
 
-    let rectX;
-    let rectY;
-    const rectLength = 200;
+    // SETTINGS
+    const canvasColor = "rgb(20, 20, 20)";
+
+    // horizont line & points setting
+    const horizontY = -150;
+    const horizontY2 = canvasSize.height + 150;
+    const hpx1 = 0;
+    const hpx2 = 2000;
+    const maxY = 1000;
+    const divHeight = 800;
+    const maxY2 = maxY + divHeight;
+
+    // random points setting
+    const randomPointsQuantity = 50;
+
+    // scrolling listener
+    function scrollFun() {
+        setYShift(window.scrollY)
+    }
+
+    useEffect(() => {
+        window.addEventListener("scroll", scrollFun);
+
+        return() => {
+            window.removeEventListener("scroll", scrollFun);
+        }
+    })
+
+    // set canvas size based on screen
+    useEffect(() => {
+        scrollFun();
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+
+        setCanvasSize({
+            width: screenWidth,
+            height: screenHeight
+        })
+    }, [])
+
+    // create grid points
+    useEffect(() => {
+        const thisPoints = []
+        const thisPoints2 = []
+        for(let i = 0; i < randomPointsQuantity; i++) {
+            const thisX = canvasSize.width * 10 / randomPointsQuantity * i
+
+            // bottom
+            if(i > 0) {
+                thisPoints.push(new randomPointsClass(thisX, maxY));
+                thisPoints2.push(new randomPointsClass2(thisX, maxY2));
+            }
+            thisPoints.push(new randomPointsClass(thisX * -1, maxY));
+            thisPoints2.push(new randomPointsClass2(thisX * -1, maxY2));
+        }
+
+        setRandomPoints(thisPoints);
+        setRandomPoints2(thisPoints2);
+    }, [reset, canvasSize])
 
 
     //ANIMATION IS RUNING HERE
@@ -36,7 +88,6 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
         // canvas settings
         const width = canvas.width;
         const height = canvas.height;
-
 
         // animation function
         function render() { 
@@ -68,224 +119,6 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                     context.fillStyle = canvasColor;
                     context.fillRect(0, 0, width, height);
                 }
-                
-                // UPDATING ANGLE
-                angle.current += 0.01;   
-                rectX = xShift
-                rectY = yShift;
-                //console.log(xShift)
-
-                //const yMotion = random.noise1D(angle.current, 1, 5)
-                //rectY += yMotion;
-
-                // PRVNI STRANA
-                const xDelta = horizontX - (rectX + rectLength);
-                const yDelta = horizontY - rectY;
-
-                const odvesna = Math.sqrt(Math.pow(xDelta, 2) + Math.pow(yDelta, 2));
-                const sin = xDelta / odvesna;
-                const cos = yDelta / odvesna;
-                const tan = yDelta / xDelta;
-                const prepona = sin * rectLength
-
-                // first point
-                const yDelta2 = horizontY - (rectY + rectLength);
-                const odvesna2 = Math.sqrt(Math.pow(xDelta, 2) + Math.pow(yDelta2, 2));
-                const sin2 = xDelta / odvesna2;
-                const cos2 = yDelta2 / odvesna2;
-                const finalX = sin2 * prepona;
-                const finalY = cos2 * prepona;
-
-
-                // second point
-                const xDelta2 = finalX;
-                const finalY2 = xDelta2 * tan;
-
-
-
-                // HORNI STRANA
-                const xDelta3 = horizontX - rectX;
-                const yDelta3 = horizontY - rectY;
-                const tan2 = xDelta3 / yDelta3;
-                const yDelta4 = rectY + finalY2 - horizontY;
-                const finalX3 = tan2 * yDelta4;
-
-
-                // SPODNI STRANA
-                const tan3 = xDelta3 / yDelta2;
-                const finalX4 = tan3 * (finalY + rectY + rectLength - horizontY)
-
-                // 4th point
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(finalX4 + horizontX, rectY + rectLength + finalY, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                //SIDE 3
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 3;
-                context.beginPath();
-                context.moveTo(rectX , rectY + rectLength);
-                context.lineTo(finalX4 + horizontX, rectY + rectLength + finalY);
-                context.lineTo(rectX + rectLength + finalX, rectY + rectLength + finalY);
-                context.lineTo(rectX + rectLength, rectY + rectLength);
-                context.closePath();
-                context.globalAlpha = 0.5;
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
-
-                context.save();
-                context.lineWidth = 3;
-                context.beginPath();
-                context.moveTo(finalX4 + horizontX, rectY + rectLength + finalY);
-                context.lineTo(horizontX + finalX3, rectY + finalY2);
-                context.stroke();
-                context.restore();
-
-
-                // 3rd point
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(horizontX + finalX3, rectY + finalY2, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                //SIDE 2
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 3;
-                context.beginPath();
-                context.moveTo(rectX , rectY);
-                context.lineTo(horizontX + finalX3, rectY + finalY2);
-                context.lineTo(rectX + rectLength + finalX, rectY + finalY2);
-                context.lineTo(rectX + rectLength, rectY);
-                context.closePath();
-                context.globalAlpha = 0.5;
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
-                // 2nd point
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX + rectLength + finalX, rectY + finalY2, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                
-                // 1st point
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX + rectLength + finalX, rectY + rectLength + finalY, 5, 0, 2 * Math.PI);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
-
-
-                //SIDE 1
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 3;
-                context.beginPath();
-                context.moveTo(rectX + rectLength, rectY + rectLength);
-                context.lineTo(rectX + rectLength + finalX, rectY + rectLength + finalY);
-                context.lineTo(rectX + rectLength + finalX, rectY + finalY2);
-                context.lineTo(rectX + rectLength, rectY);
-                context.closePath();
-                context.globalAlpha = 0.5;
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
-                
-
-                // finding angle
-                // RECT POINT 1
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX, rectY, 5, 0, 2 * Math.PI);
-                context.moveTo(rectX, rectY);
-                context.lineTo(horizontX, horizontY);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                // RECT POINT 2
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX + rectLength, rectY, 5, 0, 2 * Math.PI);
-                context.moveTo(rectX + rectLength, rectY);
-                context.lineTo(horizontX, horizontY);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                // RECT POINT 3
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX + rectLength, rectY + rectLength, 5, 0, 2 * Math.PI);
-                context.moveTo(rectX + rectLength, rectY + rectLength);
-                context.lineTo(horizontX, horizontY);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-                // RECT POINT 4
-                context.save();
-                context.fillStyle = "white";
-                context.lineWidth = 1;
-                context.beginPath();
-                context.arc(rectX, rectY + rectLength, 5, 0, 2 * Math.PI);
-                context.moveTo(rectX, rectY + rectLength);
-                context.lineTo(horizontX, horizontY);
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
-
-                // SQUARE
-                context.save();
-                context.lineWidth = 3;
-                context.beginPath();
-                context.fillStyle = "white";
-                context.moveTo(rectX, rectY);
-                context.lineTo(rectX + rectLength, rectY);
-                context.lineTo(rectX + rectLength, rectY + rectLength);
-                context.lineTo(rectX, rectY + rectLength);
-                context.closePath();
-                context.globalAlpha = 0.5;
-                context.fill();
-                context.stroke();
-                context.restore();
-
-
 
                 // HORIZONT LINE
                 context.save();
@@ -293,18 +126,39 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
                 context.lineWidth = 3;
                 context.beginPath();
                 context.moveTo(0, horizontY);
-                context.lineTo(1000, horizontY);
+                context.lineTo(canvasSize.width, horizontY);
                 context.stroke();
                 context.restore();
 
-                // HORIZONT POINT
+                // HORIZONT POINT 1
                 context.save();
                 context.fillStyle = "white";
                 context.lineWidth = 3;
                 context.beginPath();
-                context.arc(horizontX, horizontY, 10, 0, 2 * Math.PI);
+                context.arc(hpx1, horizontY, 10, 0, 2 * Math.PI);
                 context.fill();
                 context.restore();
+
+                // HORIZONT POINT 2
+                context.save();
+                context.fillStyle = "white";
+                context.lineWidth = 3;
+                context.beginPath();
+                context.arc(hpx2, horizontY, 10, 0, 2 * Math.PI);
+                context.fill();
+                context.restore();
+
+                // upper grid
+                randomPoints.forEach(e => {
+                    e.update(yShift)
+                    e.draw(context, e);
+                })
+
+                // bottom grid
+                randomPoints2.forEach(e => {
+                    e.update(yShift);
+                    e.draw(context, e);
+                })
                                                 
             }
             drawing();
@@ -313,44 +167,137 @@ export default function Canvas({ canvasRef, canvasSize, recHandler, images, anim
 
         //animation cancel when re-render component
         return () => cancelAnimationFrame(timerHolder);
+
     });
 
 
+    // CLASSES
+    class randomPointsClass {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y
+        }
 
+        // update y when scroll
+        update(yDelta) {
+            this.y = maxY - yDelta;
+        }
+
+        // draw lines
+        draw(context, e) {
+            // line 1
+            context.save();
+            context.strokeStyle = "white";
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.moveTo(hpx1, horizontY);
+            context.lineTo(e.x, e.y);
+            context.stroke();
+            context.restore();
+
+            // line 2
+            context.save();
+            context.strokeStyle = "white";
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.moveTo(hpx2, horizontY);
+            context.lineTo(e.x, e.y);
+            context.stroke();
+            context.restore();
+        }
+
+
+    }
+
+    class randomPointsClass2 {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y
+        }
+
+        // update y when scroll
+        update(yDelta) {
+            this.y = maxY2 - yDelta;
+        }
+
+        // draw lines
+        draw(context, e) {
+            // line 1
+            context.save();
+            context.strokeStyle = "white";
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.moveTo(hpx1, horizontY2);
+            context.lineTo(e.x, e.y);
+            context.stroke();
+            context.restore();
+
+            // line 2
+            context.save();
+            context.strokeStyle = "white";
+            context.lineWidth = 1.5;
+            context.beginPath();
+            context.moveTo(hpx2, horizontY2);
+            context.lineTo(e.x, e.y);
+            context.stroke();
+            context.restore();
+        }
+    }
 
 
     return (
         <div 
         style={{
             width: "100%",
-            height: "100vh",
+            //height: "100vh",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",           
         }}>
+
             <div 
             style={{
-                display: "inline-flex",
-                gap: "10px",
-                color: "white",
-                paddingBottom: "10px"
+                width: "100%",
+                height: divHeight + "px",
+                background: "white",
+                //top: maxY,
+                marginTop: maxY,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center"
+                
             }}>
-                <p>x shift</p>
-                <input type="range" min={0} max={300} step={1} defaultValue={0} onChange={(e) => setXShift(Number(e.target.value))} ></input>
+                <div>
+                    <h1 className="title">Shifting perspectives</h1>
+                    <h1 className="title">expanding horizons</h1>
+                </div>
             </div>
 
             <div 
             style={{
-                display: "inline-flex",
-                gap: "10px",
-                color: "white",
-                paddingBottom: "10px"
+                width: "100%",
+                height: "1000px",
+                background: "rgb(20,20,20)",
+                opacity: "1",
+                //top: maxY,
+                marginTop: maxY,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                //zIndex: "-10"
+                //justifyContent: "center"
             }}>
-                <p>y shift</p>
-                <input type="range" min={0} max={1000} step={1} defaultValue={700} onChange={(e) => setYShift(Number(e.target.value))} ></input>
-            </div>
 
-            <canvas id="canvas" ref={canvasRef} height={canvasSize} width={canvasSize} style={{background: canvasColor}} />
+                <div className="container">
+                    <div className="pad1">
+                        <h1 className="title2">Perspective is the lens through which reality unfolds</h1>
+                    </div>
+                </div>
+            </div>
+            
+
+            <canvas id="canvas" ref={canvasRef} height={canvasSize.height} width={canvasSize.width} style={{background: canvasColor}} />
         </div>
     )
 }
