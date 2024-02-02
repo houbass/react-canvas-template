@@ -27,7 +27,7 @@ export default function Canvas({ canvasRef, recHandler, images, animateHandler, 
     const maxY2 = maxY + divHeight;
 
     // random points setting
-    const randomPointsQuantity = 50;
+    const randomPointsQuantity = 20;
 
     // scrolling listener
     function scrollFun() {
@@ -226,6 +226,7 @@ export default function Canvas({ canvasRef, recHandler, images, animateHandler, 
             context.save();
             context.strokeStyle = "white";
             context.lineWidth = 1.5;
+
             context.beginPath();
             context.moveTo(hpx1, horizontY2);
             context.lineTo(e.x, e.y);
@@ -237,6 +238,7 @@ export default function Canvas({ canvasRef, recHandler, images, animateHandler, 
             context.strokeStyle = "white";
             context.lineWidth = 1.5;
             context.beginPath();
+
             context.moveTo(hpx2, horizontY2);
             context.lineTo(e.x, e.y);
             context.stroke();
@@ -292,6 +294,29 @@ export default function Canvas({ canvasRef, recHandler, images, animateHandler, 
                 <div className="container">
                     <div className="pad1">
                         <h1 className="title2">Perspective is the lens through which reality unfolds</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div 
+            style={{
+                width: "100%",
+                height: "1000px",
+                background: "rgb(220,220,220)",
+                opacity: "1",
+                //top: maxY,
+                //marginTop: maxY,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                //zIndex: "-10"
+                //justifyContent: "center"
+            }}>
+
+                <div className="container">
+                    <div className="pad1">
+                        <h1 className="title">Change your view</h1>
+                        <h1 className="title">change your world</h1>
                     </div>
                 </div>
             </div>
