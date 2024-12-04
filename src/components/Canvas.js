@@ -3,17 +3,15 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 export default function Canvas() {
     const canvasRef = useRef(null);
     
+    // States
+    const [animateHandler, setAnimateHandler] = useState(true);
     const diameter = 25;
     const x = useRef(0);
     const direction = useRef(1);
 
-    // States
-    const [animateHandler, setAnimateHandler] = useState(true);
-
     // Canvas settings
     const width = window.innerWidth;
-    const height = window.innerHeight;
-
+    const height = window.innerHeight - 30;
 
     // Utils
     function randomRangeNumber (min, max) {
@@ -76,30 +74,34 @@ export default function Canvas() {
 
     return (
         <div 
-            
             style={{
                 width: "100%",
-                height: "100vh",
-                background: "pink",
+                height: "calc(100vh - 100px)",
                 display: "flex",
                 flexDirection: "column",
             }}
         >
-            <div
+            <button 
                 style={{
-                    position: "fixed",
+                    background: 'rgb(20,20,20)',
+                    color: 'white',
+                    minHeight: '30px',
+                    cursor: 'pointer'
                 }}
+                onClick={() => {setAnimateHandler(!animateHandler)}}
             >
-                <canvas 
-                    id="canvas" 
-                    ref={canvasRef} 
-                    height={height} 
-                    width={width} 
-                    style={{
-                        background: "orange",
-                    }} 
-                />
-            </div>
+                Animate on/off
+            </button>
+
+            <canvas 
+                id="canvas" 
+                ref={canvasRef} 
+                height={height} 
+                width={width} 
+                style={{
+                    background: "orange",
+                }} 
+            />
         </div>
     )
 }
